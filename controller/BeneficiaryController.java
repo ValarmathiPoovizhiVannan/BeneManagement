@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.AmendBeneficiaryRequest;
+import com.example.demo.dto.AmendBeneficiaryResponse;
 import com.example.demo.dto.BeneficiarySubmitRequest;
 import com.example.demo.dto.BeneficiarySubmitResponse;
 import com.example.demo.service.BeneficiaryService;
@@ -29,6 +31,16 @@ public class BeneficiaryController {
 
         BeneficiarySubmitResponse response =
                 beneficiaryService.submitBeneficiary(request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/amend")
+    public ResponseEntity<AmendBeneficiaryResponse> submitBeneficiary(
+            @Valid @RequestBody AmendBeneficiaryRequest request) throws SQLException {
+
+        AmendBeneficiaryResponse response =
+                beneficiaryService.amendBeneficiary(request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.Validate.BeneficiaryValidator;
+import com.example.demo.dto.AmendBeneficiaryRequest;
+import com.example.demo.dto.AmendBeneficiaryResponse;
 import com.example.demo.dto.BeneficiarySubmitRequest;
 import com.example.demo.dto.BeneficiarySubmitResponse;
 import com.example.demo.repo.BeneRepo;
@@ -33,9 +35,20 @@ public class BeneficiaryService {
         response.setBeneficiaryId(String.valueOf(beneId));
         response.setResponseCode("00");
         response.setStatus("SUCCESS");
-        response.setResponseMessage(
-                "Beneficiary created successfully"
-        );
+        response.setCreatedDate(System.currentTimeMillis());
+        response.setResponseMessage("Beneficiary created successfully");
 return response;
+    }
+
+    public AmendBeneficiaryResponse amendBeneficiary(@Valid AmendBeneficiaryRequest request) throws SQLException {
+        validator.amendValidator(request);
+        int beneId = beneRepo.amend(request);
+        AmendBeneficiaryResponse response = new AmendBeneficiaryResponse();
+        response.setBeneficiaryId(String.valueOf(beneId));
+        response.setBeneNickName(request.getNickName());
+        response.setStatus("SUCCESS");
+        response.setResponseMessage("Amend created successfully");
+
+        return response;
     }
 }

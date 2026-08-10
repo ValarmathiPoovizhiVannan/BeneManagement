@@ -1,7 +1,9 @@
 package com.example.demo.repo;
 
 import com.example.demo.dto.AccountRequest;
+import com.example.demo.dto.AmendBeneficiaryRequest;
 import com.example.demo.dto.BeneficiarySubmitRequest;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -166,6 +168,120 @@ public class BeneRepo {
 
                 connection.rollback();
                 throw e;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    public int amend(AmendBeneficiaryRequest request) throws SQLException {
+
+        String beneSql = """
+                UPDATE BENE_TXN
+                SET
+                    BENE_NAME = ?,
+                    NICK_NAME = ?,
+                    BENE_TYPE = ?,
+                    BENE_CATEGORY = ?,
+                    MOBILE_NO = ?,
+                    EMAIL_ID = ?,
+                    FAVOURITE_FLAG = ?,
+                    DAILY_LIMIT = ?,
+                    MONTHLY_LIMIT = ?,
+                    TXN_LIMIT = ?,
+                    MODIFIED_BY = ?,
+                    MODIFIED_DATE = CURRENT_TIMESTAMP
+                WHERE BENE_ID = ?
+                """;
+
+        String accountSql = """
+                UPDATE BENEFICIARY_ACCOUNT
+                SET
+                    ACCOUNT_NO = ?,
+                    ACCOUNT_NAME = ?,
+                    ACCOUNT_TYPE = ?,
+                    BANK_NAME = ?,
+                    BRANCH_NAME = ?,
+                    IFSC_CODE = ?,
+                    CURRENCY = ?,
+                    DEFAULT_FLAG = ?,
+                    MODIFIED_BY = ?,
+                    MODIFIED_DATE = CURRENT_TIMESTAMP
+                WHERE ACCOUNT_ID = ?
+                AND BENE_ID = ?
+                """;
+
+        try (Connection connection = dataSource.getConnection()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement ps = connection.prepareStatement(beneSql)) {
+
+                    ps.setString(1, request.getBeneficiaryName());
+                    ps.setString(2, request.getNickName());
+                    ps.setString(3, request.getBeneficiaryType());
+                    ps.setString(4, request.getBeneficiaryCategory());
+                    ps.setString(5, request.getMobileNumber());
+                    ps.setString(6, request.getEmail());
+                    ps.setString(7, request.getFavourite());
+                    ps.setBigDecimal(8, request.getDailyLimit());
+                    ps.setBigDecimal(9, request.getMonthlyLimit());
+                    ps.setBigDecimal(10, request.getTransactionLimit());
+                    ps.setString(11, request.getModifiedBy());
+                    ps.setInt(12, request.getBeneId());
+
+                    int rows = ps.executeUpdate();
+
+                    if (rows == 0) {
+                        throw new SQLException("Beneficiary not found: " + request.getBeneId());
+                    }
+                }
+
+                if (request.getAccounts() != null) {
+
+                    try (PreparedStatement accountPs = connection.prepareStatement(accountSql)) {
+
+                        for (AccountRequest account : request.getAccounts()) {
+
+                            accountPs.setString(1, account.getAccountNumber());
+
+                            accountPs.setString(2, account.getAccountName());
+
+                            accountPs.setString(3, account.getAccountType());
+
+                            accountPs.setString(4, account.getBankName());
+
+                            accountPs.setString(5, account.getBranchName());
+
+                            accountPs.setString(6, account.getIfscCode());
+
+                            accountPs.setString(7, account.getCurrency());
+
+                            accountPs.setString(8, account.getDefaultFlag());
+
+                            accountPs.setString(9, request.getModifiedBy());
+
+                            accountPs.setInt(10, account.getAccountId());
+
+                            accountPs.setInt(11, request.getBeneId());
+
+                            accountPs.addBatch();
+                        }
+
+                        accountPs.executeBatch();
+                    }
+                }
+
+                connection.commit();
+
+                return request.getBeneId();
+
+            } catch (Exception e) {
+
+                connection.rollback();
+                throw e;
+
             } finally {
                 connection.setAutoCommit(true);
             }

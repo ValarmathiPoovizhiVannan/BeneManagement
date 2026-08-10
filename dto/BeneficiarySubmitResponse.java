@@ -11,5 +11,5 @@ public class BeneficiarySubmitResponse {
 
     private String beneficiaryId;
 
-    private LocalDateTime createdDate;
+    private long createdDate;
 }

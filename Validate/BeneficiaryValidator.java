@@ -1,10 +1,9 @@
 package com.example.demo.Validate;
 
 import com.example.demo.Exception.BeneficiaryException;
-import com.example.demo.Exception.ExceptionResponse;
+import com.example.demo.dto.AmendBeneficiaryRequest;
 import com.example.demo.dto.BeneficiarySubmitRequest;
 import com.example.demo.dto.ErrorMessage;
-import com.example.demo.util.BeneErrorCodeUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,18 +18,19 @@ public class BeneficiaryValidator {
 
 
     public void submitValidator(@Valid BeneficiarySubmitRequest request) {
-        List<ErrorMessage> errors = new ArrayList<>();
         if (request.getBeneficiaryName() == null || request.getBeneficiaryName().isEmpty()) {
-            errors.add(BeneErrorCodeUtil.getErrorMessage("BeneficiaryName"));
-            applyError(errors);
+            applyError("BeneName is Mandatory");
         }
     }
 
-    public static void applyError(List<ErrorMessage> errors) {
-        if (errors != null && !errors.isEmpty()) {
-            LOG.info("error->" + errors);
-            ExceptionResponse exceptionResponse = new ExceptionResponse("ERROR", errors);
-            throw new BeneficiaryException("Error", exceptionResponse, null);
+    public  static BeneficiaryException applyError(String error){
+        throw  new BeneficiaryException(error);
+    }
+
+        public void amendValidator(@Valid AmendBeneficiaryRequest request) {
+
+        if (request.getBeneficiaryName() == null || request.getBeneficiaryName().isEmpty()) {
+            applyError("BeneName is Mandatory");
         }
     }
 }

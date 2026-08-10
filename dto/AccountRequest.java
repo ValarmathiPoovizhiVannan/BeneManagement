@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class AccountRequest {
+    private Integer accountId;
 
     private String accountNumber;
     private String accountName;
