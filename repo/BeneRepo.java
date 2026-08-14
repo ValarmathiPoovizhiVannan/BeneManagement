@@ -48,7 +48,7 @@ public class BeneRepo {
     }
 
 
-    public int save(BeneficiarySubmitRequest request) throws SQLException {
+    public String save(BeneficiarySubmitRequest request) throws SQLException {
 
         String beneSql = """
                 INSERT INTO BENE_TXN
@@ -161,20 +161,20 @@ public class BeneRepo {
                 }
 
                 connection.commit();
-
-                return beneId;
+request.setBeneId(beneId);
+                return "SUCCESS";
 
             } catch (Exception e) {
 
                 connection.rollback();
-                throw e;
+               return  "FAILURE";
             } finally {
                 connection.setAutoCommit(true);
             }
         }
     }
 
-    public int amend(AmendBeneficiaryRequest request) throws SQLException {
+    public String amend(AmendBeneficiaryRequest request) throws SQLException {
 
         String beneSql = """
                 UPDATE BENE_TXN
@@ -275,12 +275,12 @@ public class BeneRepo {
 
                 connection.commit();
 
-                return request.getBeneId();
+                return "SUCCESS";
 
             } catch (Exception e) {
 
                 connection.rollback();
-                throw e;
+               return  "FAILURE";
 
             } finally {
                 connection.setAutoCommit(true);

@@ -1,16 +1,13 @@
-package com.example.demo.Validate;
+package com.example.demo.validate;
 
-import com.example.demo.Exception.BeneficiaryException;
+import com.example.demo.exception.BeneficiaryException;
 import com.example.demo.dto.AmendBeneficiaryRequest;
 import com.example.demo.dto.BeneficiarySubmitRequest;
-import com.example.demo.dto.ErrorMessage;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 @Component
 public class BeneficiaryValidator {
 
