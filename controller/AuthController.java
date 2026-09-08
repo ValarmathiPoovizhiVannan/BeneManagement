@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.naming.AuthenticationException;
 import java.util.Map;
 
 @RestController
@@ -26,17 +27,22 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getCorpCrn(),
+                            request.getPassword()));
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getCorpCrn(),
-                        request.getPassword()));
+            System.out.println("Authentication successful!");
 
-        String token =
-                jwtUtil.generateToken(request.getCorpCrn());
+            String token = jwtUtil.generateToken(request.getCorpCrn());
 
-        return ResponseEntity.ok(Map.of("token", token));
+            return ResponseEntity.ok(Map.of("token", token));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error: " + e.getMessage()));
+        }
     }
 }
