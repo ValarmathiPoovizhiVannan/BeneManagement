@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.AmendBeneficiaryRequest;
-import com.example.demo.dto.AmendBeneficiaryResponse;
-import com.example.demo.dto.BeneficiarySubmitRequest;
-import com.example.demo.dto.BeneficiarySubmitResponse;
+import com.example.demo.dto.*;
 import com.example.demo.service.BeneficiaryService;
 
 
@@ -13,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/v1/beneficiaries")
@@ -36,7 +34,7 @@ public class BeneficiaryController {
     }
 
     @PostMapping("/amend")
-    public ResponseEntity<AmendBeneficiaryResponse> submitBeneficiary(
+    public ResponseEntity<AmendBeneficiaryResponse> amendBeneficiary(
             @Valid @RequestBody AmendBeneficiaryRequest request) throws SQLException {
 
         AmendBeneficiaryResponse response =
@@ -44,4 +42,14 @@ public class BeneficiaryController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    @PostMapping("/delete")
+    public ResponseEntity<DeleteBeneResponse> deleteBeneficiary(
+            @Valid @RequestBody DeleteBeneRequest request) throws SQLException {
+
+        DeleteBeneResponse response =
+                beneficiaryService.deleteBeneficiary(request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

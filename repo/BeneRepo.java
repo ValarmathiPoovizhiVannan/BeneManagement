@@ -3,8 +3,10 @@ package com.example.demo.repo;
 import com.example.demo.dto.AccountRequest;
 import com.example.demo.dto.AmendBeneficiaryRequest;
 import com.example.demo.dto.BeneficiarySubmitRequest;
+import com.example.demo.dto.DeleteBeneRequest;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Repository;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -161,13 +163,13 @@ public class BeneRepo {
                 }
 
                 connection.commit();
-request.setBeneId(beneId);
+                request.setBeneId(beneId);
                 return "SUCCESS";
 
             } catch (Exception e) {
 
                 connection.rollback();
-               return  "FAILURE";
+                return "FAILURE";
             } finally {
                 connection.setAutoCommit(true);
             }
@@ -280,11 +282,60 @@ request.setBeneId(beneId);
             } catch (Exception e) {
 
                 connection.rollback();
-               return  "FAILURE";
+                return "FAILURE";
 
             } finally {
                 connection.setAutoCommit(true);
             }
         }
     }
+
+
+
+    public String delete(DeleteBeneRequest request) throws SQLException {
+
+        String deleteChildSql = """
+        DELETE FROM beneficiary_account
+        WHERE BENE_ID = ?
+        """;
+
+        String deleteParentSql = """
+        DELETE FROM BENE_TXN
+        WHERE BENE_ID = ?
+        """;
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+
+            try {
+                try (PreparedStatement psChildAll = connection.prepareStatement(deleteChildSql)) {
+                    psChildAll.setInt(1, request.getBeneId());
+                    psChildAll.executeUpdate();
+                }
+
+                int parentRowsAffected;
+                try (PreparedStatement psParent = connection.prepareStatement(deleteParentSql)) {
+                    psParent.setInt(1, request.getBeneId());
+                    parentRowsAffected = psParent.executeUpdate();
+                }
+
+                connection.commit();
+
+                if (parentRowsAffected == 0) {
+                    return "NOT_FOUND";
+                }
+                return "SUCCESS";
+
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new RuntimeException("Database error during  delete operation.", e);
+            } finally {
+                connection.setAutoCommit(true);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to establish a database connection context.", e);
+        }
+    }
+
 }

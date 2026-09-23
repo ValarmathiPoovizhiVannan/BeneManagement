@@ -1,10 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.*;
 import com.example.demo.validate.BeneficiaryValidator;
-import com.example.demo.dto.AmendBeneficiaryRequest;
-import com.example.demo.dto.AmendBeneficiaryResponse;
-import com.example.demo.dto.BeneficiarySubmitRequest;
-import com.example.demo.dto.BeneficiarySubmitResponse;
 import com.example.demo.repo.BeneRepo;
 import com.example.demo.util.EmailUtil;
 import jakarta.validation.Valid;
@@ -13,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -69,4 +67,16 @@ public class BeneficiaryService {
 
         return response;
     }
+
+    public DeleteBeneResponse deleteBeneficiary(@Valid DeleteBeneRequest request) throws SQLException {
+        String status = beneRepo.delete(request);
+        DeleteBeneResponse response = new DeleteBeneResponse();
+        response.setBeneId(request.getBeneId());
+        response.setBeneStatus(status);
+        response.setBeneNickName(request.getBeneNickName());
+
+        return response;
+    }
+
+
 }
